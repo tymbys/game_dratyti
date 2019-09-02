@@ -1,14 +1,7 @@
-//https://www.youtube.com/watch?v=8xf_ouTpd1c
-// 52:00
-// 1:50:53
-
 #include <iostream>
 //#include "DisplayGL.h"
 //#include "DisplaySDL.h"
 #include "Game.h"
-
-
-
 
 int main(int argc, char **argv) {
 //    IMG_Quit();
