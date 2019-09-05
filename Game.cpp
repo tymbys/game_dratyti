@@ -8,10 +8,8 @@ const  int NUM_ISOMETRIC_TITLES = 5;
 SDL_Rect tilesRects[NUM_ISOMETRIC_TITLES];
 
 
-#define MAP_HEIGHT 16
-#define MAP_WIDTH 16
 
-const int worldTest[MAP_HEIGHT][MAP_WIDTH] = {
+int worldTest[MAP_HEIGHT][MAP_WIDTH] = {
         {1,1,2,2,2,2,2,2,1,1,2,2,2,2,2,1},
         {1,1,1,1,2,1,1,2,1,1,2,2,2,2,2,1},
         {2,1,1,1,2,2,2,2,1,1,2,2,2,2,2,1},
@@ -32,7 +30,15 @@ const int worldTest[MAP_HEIGHT][MAP_WIDTH] = {
 
 Game::Game(): _loopDone(0){
     _displaySDL = std::make_shared<DisplaySDL>("Test GAME1");
-
+    SDL_Init(SDL_INIT_JOYSTICK);
+    if(SDL_NumJoysticks()<1)
+        SDL_Log( "NO Joystick");
+    else {
+        SDL_Joystick *joystick = SDL_JoystickOpen(0);
+        std::cout << "Joystick name:" << SDL_JoystickName(joystick) << std::endl;
+        std::cout << "Num Axis:" << SDL_JoystickNumAxes(joystick) << std::endl;
+        std::cout << "Num Buttons:" << SDL_JoystickNumButtons(joystick) << std::endl;
+    }
     InitTitleClip();
     if (_texture.LoadTexture("data/isotiles.png") == 0){
         std::cerr << "Error: Could not load texture from dir data!" << std::endl;
@@ -110,10 +116,26 @@ void Game::Draw(){
 void Game::Update(){
     SDL_GetMouseState(&_mouseRect.x, &_mouseRect.y);
 }
+void Game::InvertMap(int world[MAP_HEIGHT][MAP_WIDTH], int button){
+    static int8_t delta = 0;
+    if(delta != 0) return;
+    if(button == 4) delta = 1;
+    if(button == 5) delta = -1;
+    for(int i=0; i< MAP_HEIGHT; i++)
+    {
+       for (int k = 0; k < MAP_WIDTH; k++)
+        {
+           world[i][k] = world[i][k] + delta;
+           if( world[i][k] == 5 ) world[i][k] = 1;
+           if( world[i][k] == 0 ) world[i][k] = 4;
+        }
+    }
+    delta = 0;
 
+}
 void Game::UpdateInput(){
     const Uint8  *keystate = SDL_GetKeyboardState(NULL);
-
+    static  uint8_t  move = 0;
     while (SDL_PollEvent(&_event) != 0){
         switch (_event.type){
             case SDL_QUIT:
@@ -132,12 +154,39 @@ void Game::UpdateInput(){
                     GetMouseTileClick();
                 }
                 break;
-
+            case SDL_JOYAXISMOTION:
+                if(_event.jaxis.which == 0)
+                    std::cout<< (int) _event.jaxis.axis <<" : "<< _event.jaxis.value << std::endl;
+                    if((int)_event.jaxis.value==0){
+                        //stop move 0
+                        move = 0;
+                    }
+                    if((int) _event.jaxis.axis ==1 &&(_event.jaxis.value>0)){
+                        //move down 1
+                        move = 1;
+                    }
+                    if((int) _event.jaxis.axis ==1 &&(_event.jaxis.value<0)){
+                        //move up 2
+                        move = 2;
+                    }
+                    if((int) _event.jaxis.axis ==0 &&(_event.jaxis.value>0)){
+                        //move right 3
+                        move = 3;
+                    }
+                    if((int) _event.jaxis.axis ==0 &&(_event.jaxis.value<0)){
+                        //move left 4
+                        move = 4;
+                    }
+                break;
+            case SDL_JOYBUTTONDOWN:
+                    std::cout<< (int)_event.jbutton.button << std::endl;
+                InvertMap(worldTest, (int) _event.jbutton.button);
+                break;
             default:
                 break;
         }
     }
-
+    JoystickMove(move);
     if (keystate[SDL_SCANCODE_W]){
         _isoEngine._scrollX += _mapScrollSpead;
         _isoEngine._scrollY += _mapScrollSpead;
@@ -169,6 +218,33 @@ void Game::UpdateInput(){
 
 }
 
+void Game::JoystickMove(int8_t move){
+    switch(move) {
+        case 1:
+            _isoEngine._scrollX += _mapScrollSpead;
+            _isoEngine._scrollY += _mapScrollSpead;
+            _mapScroll2Dpos.y +=  _mapScrollSpead;
+            break;
+        case 2:
+            _isoEngine._scrollX -= _mapScrollSpead;
+            _isoEngine._scrollY -= _mapScrollSpead;
+            _mapScroll2Dpos.y -=  _mapScrollSpead;
+            break;
+        case 3:
+            _isoEngine._scrollX += _mapScrollSpead;
+            _isoEngine._scrollY -= _mapScrollSpead;
+            _mapScroll2Dpos.x -=  _mapScrollSpead;
+            break;
+        case 4:
+            _isoEngine._scrollX -= _mapScrollSpead;
+            _isoEngine._scrollY += _mapScrollSpead;
+            _mapScroll2Dpos.x +=  _mapScrollSpead;
+            break;
+        default:
+            break;
+    }
+
+}
 void Game::SetupRect(SDL_Rect *rect, int x, int y, int w, int h){
     rect->x = x;
     rect->y = y;
@@ -213,3 +289,4 @@ void Game::GetMouseTileClick(){
 
 
 }
+

@@ -11,6 +11,8 @@
 #include "Texture.h"
 #include "IsoEngine.h"
 
+#define MAP_HEIGHT 16
+#define MAP_WIDTH 16
 class Game {
 public:
     int _loopDone;
@@ -32,7 +34,8 @@ public:
     void SetupRect(SDL_Rect *rect, int x, int y, int w, int h);
     void InitTitleClip();
     void GetMouseTileClick();
-
+    void JoystickMove(int8_t move);
+    void InvertMap( int world[16][16], int i);
 private:
     SDL_Event _event;
 
@@ -40,6 +43,8 @@ private:
     std::shared_ptr<DisplaySDL> _displaySDL;
 
     Texture _texture;
+
+
 };
 
 
