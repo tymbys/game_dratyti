@@ -9,6 +9,7 @@
 IsoEngine::IsoEngine(): _mapHeight(0), _mapWidth(0), _scrollX(0), _scrollY(0){
 }
 
+
 void IsoEngine::SetTileSize(int tileSizeInPixel){
     _tileSize = tileSizeInPixel;
 }
@@ -20,6 +21,12 @@ void IsoEngine::SetMapSize(int width, int height){
     _mapHeight = height;
 }
 
+void IsoEngine::SetupRect(SDL_Rect &rect, int x, int y, int w, int h){
+    rect.x = x;
+    rect.y = y;
+    rect.w = w;
+    rect.h = h;
+}
 
 void IsoEngine::Convert2dToIso(Point2D &point){
 
@@ -50,4 +57,51 @@ void  IsoEngine::GetTileCoordinates(Point2D &point, Point2D &point2DCoord){
     point2DCoord.y = (int)tempY;
 
 //    std::cout << "x: " << point2DCoord.x << " y: " << point2DCoord.y << std::endl;
+}
+
+
+void IsoEngine::ConvertIsoCameraToCartesian(Point2D &cartesianCamPos)
+{
+    Point2D tmpPoint;
+
+
+    tmpPoint.x = _scrollX;
+    tmpPoint.y = _scrollY;
+
+    Convert2dToIso(tmpPoint);
+
+    tmpPoint.x = tmpPoint.x/2;
+
+    if(tmpPoint.x<0){
+        tmpPoint.x = abs(tmpPoint.x);
+    }
+    else if(tmpPoint.x>0)
+    {
+        tmpPoint.x = -abs(tmpPoint.x);
+    }
+    cartesianCamPos = tmpPoint;
+}
+
+void IsoEngine::ConvertCartesianCameraToIsometric(Point2D &cartesianCamPos)
+{
+    Point2D tmpPoint;
+
+
+    tmpPoint = cartesianCamPos;
+
+    tmpPoint.x = (int)tmpPoint.x*2;
+
+    if(tmpPoint.x<0){
+        tmpPoint.x = abs((int)tmpPoint.x);
+    }
+    else if(tmpPoint.x>0)
+    {
+        tmpPoint.x = -abs((int)tmpPoint.x);
+    }
+
+    ConvertIsoTo2D(tmpPoint);
+
+    _scrollX = (int)tmpPoint.x;
+    _scrollY = (int)tmpPoint.y;
+
 }

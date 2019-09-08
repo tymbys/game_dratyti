@@ -79,3 +79,11 @@ SDL_Renderer *Renderer::GetRenderer(){
 SDL_Window *Renderer::GetWindow(){
     return _window;
 }
+
+int Renderer::GetWidth(){
+    return _width;
+
+}
+int Renderer::GetHeight(){
+    return _height;
+}

@@ -24,6 +24,9 @@ public:
 //    Renderer(std::string windowCap, int width, int height);
 //    ~Renderer();
 
+    int GetWidth();
+    int GetHeight();
+
 
     SDL_Renderer    *GetRenderer();
     SDL_Window      *GetWindow();

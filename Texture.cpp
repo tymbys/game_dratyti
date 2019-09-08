@@ -39,7 +39,7 @@ void Texture::InitTexture(int x, int y, double angle, SDL_Point *center, SDL_Rec
     _y = y;
     _angle = angle;
     _center = center;
-    _cliprecct = cliprecct;
+    _cliprect = cliprecct;
     _flipType = flipType;
 }
 
@@ -51,13 +51,40 @@ void Texture::RenderXYClip(int x, int y, SDL_Rect *cliprecct){
 
     _x = x;
     _y = y;
-    _cliprecct = cliprecct;
+    _cliprect = cliprecct;
     SDL_Rect qued = {_x, _y, _width, _height};
 
-    if(_cliprecct != NULL){
-        qued.w = _cliprecct->w;
-        qued.h = _cliprecct->h;
+    if(_cliprect != NULL){
+        qued.w = _cliprect->w;
+        qued.h = _cliprect->h;
     }
 
-    SDL_RenderCopyEx(Renderer::get().GetRenderer(), _texture, _cliprecct, &qued, _angle, _center, _flipType);
+    SDL_RenderCopyEx(Renderer::get().GetRenderer(), _texture, _cliprect, &qued, _angle, _center, _flipType);
+}
+
+void Texture::RenderXYClipScale( int x, int y, SDL_Rect *cliprect, float scale){
+    float w,h;
+    float diffx,diffy;
+    SDL_Rect quad;
+    w=(float)_width+1*scale;
+    h=(float)_height+1*scale;
+
+    diffx = (x*scale) - x;
+    diffy = (y*scale) - y;
+
+    _isoEngine.SetupRect(quad,(x*scale)-diffx,(y*scale)-diffy,w,h);
+
+    _cliprect = cliprect;
+
+    if(_cliprect != NULL){
+        quad.w = (int)(_cliprect->w*scale);
+        quad.h = (int)(_cliprect->h*scale);
+
+        if(scale <1.0 || scale >1.0){
+            quad.h +=1;
+            quad.w +=1;
+        }
+    }
+    SDL_RenderCopyEx(Renderer::get().GetRenderer(), _texture, _cliprect, &quad, _angle, _center, _flipType);
+
 }
