@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
     Game _game;
 
 //    SDL_ShowCursor(0);
-//    SDL_SetWindowGrab(Renderer::get().GetWindow(),SDL_TRUE);
+    SDL_SetWindowGrab(Renderer::get().GetWindow(),SDL_TRUE);
     SDL_WarpMouseInWindow(Renderer::get().GetWindow(),Renderer::get().GetWidth()/2,Renderer::get().GetHeight()/2);
 
 while(!_game._loopDone){
